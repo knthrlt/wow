@@ -1,0 +1,119 @@
+section .data
+    prompt_name db "Enter Name: ", 0
+    prompt_score db "Enter Score: ", 0
+
+    out_name db "Name: ", 0
+    out_score db "Score: ", 0
+    out_remark db "Remarks: ", 0
+
+    excellent db "Excellent", 10, 0
+    good db "Good", 10, 0
+    poor db "Poor", 10, 0
+
+    newline db 10, 0
+
+section .bss
+    name resb 50
+    score resb 4
+
+section .text
+    global _start
+
+_start:
+
+; ===== INPUT NAME =====
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, prompt_name
+    mov rdx, 12
+    syscall
+
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, name
+    mov rdx, 50
+    syscall
+
+; ===== INPUT SCORE =====
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, prompt_score
+    mov rdx, 14
+    syscall
+
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, score
+    mov rdx, 4
+    syscall
+
+; convert ASCII to integer (only first digit)
+    mov al, [score]
+    sub al, '0'
+
+; ===== OUTPUT NAME =====
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, out_name
+    mov rdx, 6
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, name
+    mov rdx, 50
+    syscall
+
+; ===== OUTPUT SCORE =====
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, out_score
+    mov rdx, 7
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, score
+    mov rdx, 4
+    syscall
+
+; ===== OUTPUT REMARK =====
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, out_remark
+    mov rdx, 9
+    syscall
+
+; ===== CHECK CONDITIONS =====
+    cmp al, 9
+    je is_excellent
+
+    cmp al, 7
+    jl is_poor   ; if <7 → Poor
+
+    cmp al, 8
+    jle is_good  ; 7-8 → Good
+
+is_excellent:
+    mov rsi, excellent
+    mov rdx, 10
+    jmp print_remark
+
+is_good:
+    mov rsi, good
+    mov rdx, 5
+    jmp print_remark
+
+is_poor:
+    mov rsi, poor
+    mov rdx, 5
+
+print_remark:
+    mov rax, 1
+    mov rdi, 1
+    syscall
+
+; ===== EXIT =====
+    mov rax, 60
+    xor rdi, rdi
+    syscall
